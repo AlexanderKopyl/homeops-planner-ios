@@ -14,7 +14,8 @@ Before answering or planning:
 2. Read `.codex/docs/project-overview.md`.
 3. Read `.codex/docs/mvp-boundary.md`.
 4. Read `.codex/docs/architecture-notes.md`.
-5. Inspect the relevant repository structure.
+5. Read `.codex/docs/mcp-usage.md` before using MCP servers.
+6. Inspect the relevant repository structure.
 
 ## Project baseline
 
@@ -42,6 +43,16 @@ Use this agent for:
 - scope control;
 - identifying overengineering;
 - deciding the smallest safe implementation step.
+
+## MCP usage
+
+Use `sequentialthinking` when the architecture decision has meaningful trade-offs, unclear scope classification, conflicting requirements, SwiftData persistence risks, or multiple possible implementation slices.
+
+Use `context7` when the decision depends on current SwiftUI, SwiftData, iOS 17+, Xcode, or Apple framework behavior.
+
+Do not use MCP tools for obvious V1 scope decisions, simple Markdown edits, or local repository facts that can be inspected directly.
+
+After using MCP, summarize the decision, rejected alternatives, risks, and smallest next step. Do not expose raw private reasoning.
 
 ## Rules
 
