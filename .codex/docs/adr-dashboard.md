@@ -38,6 +38,26 @@ TabView
   More
 ```
 
+Recommended layout implementation:
+
+```text
+ScrollView
+  VStack
+    Header
+    Quick Summary
+    Needs Attention
+    Running Low
+    Due Soon
+    Maintenance
+```
+
+Reason:
+
+- Dashboard can grow vertically as more sections appear;
+- sections remain simple to compose in SwiftUI;
+- content stays usable on smaller devices;
+- no complex list behavior is needed for V1.
+
 Recommended Dashboard sections:
 
 ```text
@@ -155,13 +175,15 @@ Positive:
 - avoids enterprise-style inventory UI;
 - supports quick daily usage;
 - works fully with local SwiftData models;
-- avoids premature analytics/reporting scope.
+- avoids premature analytics/reporting scope;
+- keeps the initial SwiftUI layout simple with `ScrollView` + `VStack`.
 
 Trade-offs:
 
 - the Dashboard depends on computed state from supplies and maintenance;
 - due-soon thresholds still need to be finalized later;
-- the first implementation should stay simple and may not have all polish immediately.
+- the first implementation should stay simple and may not have all polish immediately;
+- very long sections may later need internal limits or “See all” links.
 
 ## Not allowed in Version 1 Dashboard
 
@@ -181,6 +203,13 @@ Do not include:
 - remote analytics SDKs.
 
 ## Implementation notes
+
+Initial implementation should use simple SwiftUI composition:
+
+```text
+ScrollView
+  VStack(alignment: .leading)
+```
 
 Initial implementation can use simple SwiftUI views and computed filters.
 
