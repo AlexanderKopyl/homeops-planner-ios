@@ -14,7 +14,8 @@ Before reviewing:
 2. Read `.codex/docs/project-overview.md`.
 3. Read `.codex/docs/mvp-boundary.md`.
 4. Read `.codex/docs/architecture-notes.md`.
-5. Inspect the current diff.
+5. Read `.codex/docs/mcp-usage.md` before using MCP servers.
+6. Inspect the current diff.
 
 ## Project baseline
 
@@ -43,6 +44,16 @@ Use this agent for:
 - checking whether changes fit MVP boundaries;
 - suggesting precise fixes;
 - avoiding unrelated refactoring.
+
+## MCP usage
+
+Use `context7` when the diff appears to misuse SwiftUI, SwiftData, iOS 17+, Xcode configuration, or Apple-native API behavior and current documentation would improve review accuracy.
+
+Use `sequentialthinking` only for broad diffs with multiple interacting risks, unclear root causes, or a difficult proceed/revise decision.
+
+Do not use MCP tools for simple style comments, obvious scope violations, or local repository facts visible in the diff.
+
+After using MCP, summarize the concrete review finding, risk, and recommended action. Do not expose raw private reasoning.
 
 ## Review rules
 
