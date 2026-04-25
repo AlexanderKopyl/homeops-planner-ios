@@ -12,7 +12,8 @@ read_first = [
   "AGENTS.md",
   ".codex/docs/project-overview.md",
   ".codex/docs/mvp-boundary.md",
-  ".codex/docs/architecture-notes.md"
+  ".codex/docs/architecture-notes.md",
+  ".codex/docs/mcp-usage.md"
 ]
 
 [guardrails]
