@@ -130,7 +130,7 @@ Each feature owns screens and small feature-specific UI helpers.
 Examples:
 
 - `Dashboard` shows due soon and pending items.
-- `Supplies` manages household consumables.
+- `Supplies` manages household consumables and provides an all-supplies view.
 - `Categories` manages flat supply categories.
 - `Maintenance` manages recurring home tasks.
 - `Merchants` manages preferred purchase sources.
@@ -205,7 +205,7 @@ Time-based examples:
 Likely fields later:
 
 - name;
-- category reference;
+- required category reference;
 - tracking type;
 - current quantity, for quantity-based items;
 - low-stock threshold, for quantity-based items;
@@ -310,7 +310,7 @@ Supply tracking in V1 supports two explicit modes.
 
 1. User creates a supply item.
 2. User selects quantity-based tracking.
-3. User selects or creates a supply category.
+3. User selects or creates a required supply category.
 4. User sets current quantity.
 5. User sets a low-stock threshold.
 6. User optionally sets a unit label.
@@ -322,7 +322,7 @@ Supply tracking in V1 supports two explicit modes.
 
 1. User creates a supply item.
 2. User selects time-based tracking.
-3. User selects or creates a supply category.
+3. User selects or creates a required supply category.
 4. User sets `startDate`.
 5. User sets `endDate`.
 6. App shows whether the item is active, due soon, or expired.
@@ -344,7 +344,7 @@ Recommended early model direction:
 ```text
 SupplyItem
   name: String
-  category: SupplyCategory?
+  category: SupplyCategory
   trackingType: SupplyTrackingType
 
   // Quantity-based fields
@@ -381,6 +381,15 @@ Do not introduce a separate consumption history entity at the start. It can be a
 
 Supply categories are separate local entities in V1.
 
+V1 decision: every `SupplyItem` must belong to exactly one `SupplyCategory`.
+
+Reason:
+
+- keeps supply organization consistent;
+- supports shop-like category browsing;
+- avoids long-term uncategorized data mess;
+- makes grouped lists and filters predictable.
+
 Core category flow:
 
 1. User opens category management or creates a category inline while creating a supply.
@@ -388,32 +397,56 @@ Core category flow:
 3. User can assign supplies to that category.
 4. Supply list can group or filter items by category.
 5. Editing a category name affects all assigned supplies.
+6. User can still open an all-supplies list without entering a specific category.
 
 Recommended relationship:
 
 ```text
 SupplyCategory 1 → many SupplyItem
-SupplyItem many → 1 optional SupplyCategory
+SupplyItem many → 1 required SupplyCategory
 ```
 
 V1 category scope:
 
 - flat categories only;
 - categories are local-only;
-- category is optional for a supply item;
-- deleting a category should not necessarily delete supplies.
+- category is required for a supply item;
+- user can browse by category;
+- user can also browse all supply items in one list.
 
 Recommended delete behavior:
 
 ```text
 When deleting category:
-  keep supplies
-  remove category reference from assigned supplies
+  prevent deletion if supplies are assigned
+  or require moving assigned supplies to another category first
 ```
 
-This is safer than cascade delete for V1.
+Because category is required, deleting a category must not leave supplies without a category.
 
-## 10. Action List decision
+## 10. All supplies view decision
+
+Even though every supply belongs to a category, the app should provide an all-supplies view.
+
+Reason:
+
+- users should not be forced to enter each category to find an item;
+- the app needs a global low-stock / due-soon overview;
+- search and filters will be easier later;
+- this keeps the UX closer to a practical inventory list, not only a category browser.
+
+Recommended V1 behavior:
+
+```text
+Supplies tab
+  All supplies list
+  Optional category filter/grouping
+  Category management accessible from More or from the supply form
+```
+
+Do not make category browsing the only navigation path.
+
+## 11. Action List decision
 
 For early V1, the Action List should preferably be **computed from Supplies and Maintenance Tasks** rather than stored as a separate SwiftData entity.
 
@@ -426,7 +459,7 @@ Reason:
 
 A separate `ActionItem` entity can be introduced later if manual ad-hoc actions become an explicit MVP requirement.
 
-## 11. Screen structure direction
+## 12. Screen structure direction
 
 Initial screen direction:
 
@@ -438,6 +471,8 @@ TabView
   More
 ```
 
+`Supplies` should show all supply items by default. Category browsing/filtering can exist inside this tab, but it should not replace the all-items list.
+
 `More` can later contain:
 
 - Categories;
@@ -447,7 +482,7 @@ TabView
 
 Do not create too many first-level tabs early. The app should feel simple and operational, not like an admin system.
 
-## 12. Expansion path
+## 13. Expansion path
 
 ### Still compatible with V1
 
@@ -481,27 +516,28 @@ The following require explicit architectural reassessment:
 
 Do not prebuild abstractions for these in V1.
 
-## 13. Implementation order
+## 14. Implementation order
 
 Recommended order:
 
 1. Create minimal app folder structure only where needed.
 2. Add root navigation with a small `TabView`.
 3. Add SwiftData model: `SupplyCategory`.
-4. Add SwiftData model: `SupplyItem` with explicit tracking type.
+4. Add SwiftData model: `SupplyItem` with explicit tracking type and required category.
 5. Build minimal category create/list flow or inline category creation.
-6. Build Supplies list and create/edit flow.
-7. Add quantity-based detail flow for recording consumed quantity.
-8. Add quantity low-stock logic based on `currentQuantity <= lowStockThreshold`.
-9. Add time-based fields and status logic: active, due soon, expired.
-10. Add `MaintenanceTask` model.
-11. Build Maintenance list and create/edit flow.
-12. Add Dashboard with computed due-soon/running-low sections.
-13. Add Merchant and ServiceProvider support only after core flows work.
-14. Add computed Action List.
-15. Polish UX and validate repeated usage.
+6. Build Supplies all-items list and create/edit flow.
+7. Add category assignment in supply form.
+8. Add quantity-based detail flow for recording consumed quantity.
+9. Add quantity low-stock logic based on `currentQuantity <= lowStockThreshold`.
+10. Add time-based fields and status logic: active, due soon, expired.
+11. Add `MaintenanceTask` model.
+12. Build Maintenance list and create/edit flow.
+13. Add Dashboard with computed due-soon/running-low sections.
+14. Add Merchant and ServiceProvider support only after core flows work.
+15. Add computed Action List.
+16. Polish UX and validate repeated usage.
 
-## 14. Acceptance criteria for this architecture
+## 15. Acceptance criteria for this architecture
 
 The architecture is acceptable if:
 
@@ -511,9 +547,11 @@ The architecture is acceptable if:
 - SwiftData models stay local-only;
 - there is no backend/auth/sync/Firebase leakage;
 - MVP screens can be built incrementally;
+- every supply item has a category;
+- user can view all supply items without entering a category;
 - V2 remains possible without polluting V1.
 
-## 15. Deferred decisions
+## 16. Deferred decisions
 
 Do not decide yet:
 
@@ -534,7 +572,7 @@ Do not decide yet:
 
 These should be decided only when the relevant implementation slice starts.
 
-## 16. Architecture decision rule
+## 17. Architecture decision rule
 
 Before adding a new layer, abstraction, model field, package, or feature, ask:
 
