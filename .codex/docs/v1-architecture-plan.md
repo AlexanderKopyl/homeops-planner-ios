@@ -392,12 +392,13 @@ Reason:
 
 Core category flow:
 
-1. User opens category management or creates a category inline while creating a supply.
-2. User enters category name.
-3. User can assign supplies to that category.
-4. Supply list can group or filter items by category.
-5. Editing a category name affects all assigned supplies.
-6. User can still open an all-supplies list without entering a specific category.
+1. User creates or edits a supply item.
+2. User selects an existing category directly in the supply form.
+3. If the needed category does not exist, user can create it inline from the same form.
+4. The newly created category becomes selectable immediately and can be assigned to the supply.
+5. Supply list can group or filter items by category.
+6. Editing a category name affects all assigned supplies.
+7. User can still open an all-supplies list without entering a specific category.
 
 Recommended relationship:
 
@@ -411,6 +412,8 @@ V1 category scope:
 - flat categories only;
 - categories are local-only;
 - category is required for a supply item;
+- inline category creation from the supply form is the primary UX;
+- separate category management is secondary and can live under `More` later;
 - user can browse by category;
 - user can also browse all supply items in one list.
 
@@ -441,7 +444,8 @@ Recommended V1 behavior:
 Supplies tab
   All supplies list
   Optional category filter/grouping
-  Category management accessible from More or from the supply form
+  Inline category creation inside Supply form
+  Separate category management later under More if needed
 ```
 
 Do not make category browsing the only navigation path.
@@ -524,9 +528,9 @@ Recommended order:
 2. Add root navigation with a small `TabView`.
 3. Add SwiftData model: `SupplyCategory`.
 4. Add SwiftData model: `SupplyItem` with explicit tracking type and required category.
-5. Build minimal category create/list flow or inline category creation.
-6. Build Supplies all-items list and create/edit flow.
-7. Add category assignment in supply form.
+5. Build Supplies all-items list and create/edit flow.
+6. Add category assignment in supply form.
+7. Add inline category creation inside supply form.
 8. Add quantity-based detail flow for recording consumed quantity.
 9. Add quantity low-stock logic based on `currentQuantity <= lowStockThreshold`.
 10. Add time-based fields and status logic: active, due soon, expired.
@@ -548,6 +552,8 @@ The architecture is acceptable if:
 - there is no backend/auth/sync/Firebase leakage;
 - MVP screens can be built incrementally;
 - every supply item has a category;
+- user can select an existing category when creating a supply;
+- user can create a new category inline from the supply form;
 - user can view all supply items without entering a category;
 - V2 remains possible without polluting V1.
 
