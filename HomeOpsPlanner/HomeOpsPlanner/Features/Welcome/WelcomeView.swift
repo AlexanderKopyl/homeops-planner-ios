@@ -15,9 +15,10 @@ struct WelcomeView: View {
             Spacer()
 
             VStack(spacing: 16) {
-                Image(systemName: "house.fill")
-                    .font(.system(size: 56))
-                    .foregroundStyle(.tint)
+                Image("WelcomeLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 128, height: 128)
 
                 Text("HomeOps Planner")
                     .font(.largeTitle)
