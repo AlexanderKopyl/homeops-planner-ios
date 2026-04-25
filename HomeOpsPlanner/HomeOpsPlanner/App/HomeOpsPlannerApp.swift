@@ -6,12 +6,18 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct HomeOpsPlannerApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .modelContainer(for: [
+                    SupplyCategory.self,
+                    SupplyItem.self,
+                    MaintenanceTask.self
+                ])
         }
     }
 }
