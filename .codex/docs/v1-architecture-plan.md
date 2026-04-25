@@ -101,6 +101,7 @@ HomeOpsPlanner/
       ProviderFormView.swift
 
   Models/
+    SupplyTrackingType.swift
     SupplyItem.swift
     SupplyCategory.swift
     MaintenanceTask.swift
@@ -144,6 +145,8 @@ Feature folders should not introduce backend, sync, auth, or remote abstractions
 SwiftData models represent local persisted app data.
 
 V1 models should include only local fields required by current workflows. Do not add remote IDs, account ownership, sync status, server timestamps, or DTO-like fields.
+
+Each model or core value type should live in its own file. Do not hide `SupplyTrackingType` inside `SupplyItem.swift`.
 
 ### Shared
 
@@ -310,6 +313,14 @@ Supply tracking in V1 supports two explicit modes.
 
 Official type name: `SupplyTrackingType`.
 
+Official file path:
+
+```text
+HomeOpsPlanner/Models/SupplyTrackingType.swift
+```
+
+Do not define this enum inside `SupplyItem.swift`.
+
 Enum storage strategy:
 
 ```swift
@@ -322,6 +333,7 @@ enum SupplyTrackingType: String, Codable {
 
 Reason:
 
+- separate file keeps model files focused;
 - `String` raw values are readable and stable;
 - `Codable` is practical for SwiftData persistence and future local export/import;
 - explicit naming avoids conflict with generic tracking concepts later.
@@ -554,7 +566,7 @@ Recommended order:
 1. Create minimal app folder structure only where needed.
 2. Add root navigation with a small `TabView`.
 3. Add SwiftData model: `SupplyCategory`.
-4. Add `SupplyTrackingType` enum.
+4. Add `SupplyTrackingType` enum in `Models/SupplyTrackingType.swift`.
 5. Add SwiftData model: `SupplyItem` with explicit tracking type and required category.
 6. Build Supplies all-items list and create/edit flow.
 7. Add category assignment in supply form.
