@@ -57,17 +57,37 @@ When working in this repository:
 
 1. Read this `AGENTS.md` before planning or editing.
 2. Read relevant docs in `.codex/docs/` before proposing architecture.
-3. Keep changes small and incremental.
-4. Explain architecture before implementation.
-5. Do not overengineer.
-6. Do not introduce backend, auth, sync, Firebase, cloud abstractions, or account concepts for V1.
-7. Do not add CI/CD unless explicitly requested.
-8. Do not add subagents or complex AI workflow layers unless explicitly requested.
-9. Do not create large full-file rewrites unless explicitly requested.
-10. Keep code readable for a Swift learner.
-11. Prefer simple, inspectable solutions over clever abstractions.
-12. Avoid unrelated refactoring.
-13. If a requirement is unclear, ask one concise question, then proceed with the safest V1 assumption.
+3. Read `.codex/docs/mcp-usage.md` before using MCP servers.
+4. Keep changes small and incremental.
+5. Explain architecture before implementation.
+6. Do not overengineer.
+7. Do not introduce backend, auth, sync, Firebase, cloud abstractions, or account concepts for V1.
+8. Do not add CI/CD unless explicitly requested.
+9. Do not add subagents or complex AI workflow layers unless explicitly requested.
+10. Do not create large full-file rewrites unless explicitly requested.
+11. Keep code readable for a Swift learner.
+12. Prefer simple, inspectable solutions over clever abstractions.
+13. Avoid unrelated refactoring.
+14. If a requirement is unclear, ask one concise question, then proceed with the safest V1 assumption.
+
+## MCP usage rules
+
+The repository configures two MCP servers:
+
+- `sequentialthinking` — use for non-trivial reasoning, architecture trade-offs, MVP slicing, unclear classifications, complex debugging, or broad reviews with multiple risks.
+- `context7` — use for current documentation lookup when SwiftUI, SwiftData, iOS 17+, Xcode, Apple-native APIs, or explicitly approved external package behavior is uncertain.
+
+Do not use MCP tools for every small task.
+
+Do not use MCP tools for:
+
+- simple file edits;
+- obvious Markdown changes;
+- local repository facts that can be inspected directly;
+- justifying backend/auth/sync/Firebase/cloud scope for V1;
+- adding external packages without explicit approval.
+
+After using MCP tools, summarize the conclusion, selected option, rejected alternatives, risks, and smallest next step. Do not expose raw private reasoning.
 
 ## Architecture principles
 
