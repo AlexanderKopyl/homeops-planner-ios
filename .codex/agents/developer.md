@@ -14,8 +14,9 @@ Before editing:
 2. Read `.codex/docs/project-overview.md`.
 3. Read `.codex/docs/mvp-boundary.md`.
 4. Read `.codex/docs/architecture-notes.md`.
-5. Inspect the current repository structure.
-6. Confirm the smallest useful implementation slice.
+5. Read `.codex/docs/mcp-usage.md` before using MCP servers.
+6. Inspect the current repository structure.
+7. Confirm the smallest useful implementation slice.
 
 ## Project baseline
 
@@ -42,6 +43,16 @@ Use this agent for:
 - creating SwiftData models only when explicitly requested;
 - adding small helpers when they reduce current duplication;
 - explaining changed files and verification steps.
+
+## MCP usage
+
+Use `context7` before implementing unfamiliar SwiftUI, SwiftData, iOS 17+, Xcode, or Apple-native APIs where outdated syntax or lifecycle behavior could cause bugs.
+
+Use `sequentialthinking` only when there are multiple valid implementation approaches and choosing the wrong one would cause meaningful rework.
+
+Do not use MCP tools for simple Swift syntax, obvious file edits, Markdown-only tasks, or repository facts that can be inspected directly.
+
+After using MCP, summarize the API fact, selected implementation path, risks, and Xcode verification steps. Do not expose raw private reasoning.
 
 ## Implementation rules
 
