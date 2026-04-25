@@ -169,19 +169,43 @@ Likely V1 entities:
 
 Represents a household consumable that may run low.
 
-Examples: water filters, dishwasher tablets, detergent, batteries, light bulbs.
+Examples: water filters, dishwasher tablets, detergent, batteries, light bulbs, air fresheners, toilet freshener blocks.
 
-V1 decision: supplies are tracked by **quantity**, not by estimated time usage.
+V1 decision: supplies can be tracked by **tracking type**.
 
-The user should be able to open a supply item and record how many units were consumed. The app then updates the remaining quantity and can mark the item as low or out of stock based on a configured low-stock threshold.
+Supported MVP tracking types:
+
+1. **Quantity-based** — for items where the user knows how many units remain.
+2. **Time-based** — for items that are installed or started once and should be replaced after a known end date.
+
+The user chooses the tracking type when creating or editing a supply item.
+
+Quantity-based examples:
+
+- batteries;
+- dishwasher tablets;
+- detergent packs;
+- light bulbs;
+- water filters kept in stock.
+
+Time-based examples:
+
+- toilet air freshener block;
+- installed water filter cartridge;
+- air freshener refill;
+- pest repellent cartridge;
+- any consumable with a start date and planned replacement date.
 
 Likely fields later:
 
 - name;
 - category;
-- current quantity;
-- low-stock threshold;
+- tracking type;
+- current quantity, for quantity-based items;
+- low-stock threshold, for quantity-based items;
 - unit label, for example `pcs`, `packs`, `tablets`, `filters`;
+- start date, for time-based items;
+- end date or replacement date, for time-based items;
 - preferred merchant reference or purchase URL;
 - notes;
 - created/updated dates if needed locally.
@@ -193,7 +217,8 @@ Explicitly postponed for early V1:
 - barcode scanning;
 - price tracking;
 - store inventory integration;
-- remote product catalog.
+- remote product catalog;
+- separate consumption history entity.
 
 ### MaintenanceTask
 
@@ -232,19 +257,29 @@ Likely fields later:
 - website;
 - notes.
 
-## 8. Supply quantity tracking decision
+## 8. Supply tracking type decision
 
-Supply tracking in V1 is quantity-based.
+Supply tracking in V1 supports two explicit modes.
 
-Core flow:
+### Quantity-based flow
 
 1. User creates a supply item.
-2. User sets current quantity.
-3. User sets a low-stock threshold.
-4. User optionally sets a unit label.
-5. Later, user opens the item and records consumed quantity.
-6. App decreases current quantity.
-7. If current quantity is less than or equal to the low-stock threshold, the item appears in low-stock / action sections.
+2. User selects quantity-based tracking.
+3. User sets current quantity.
+4. User sets a low-stock threshold.
+5. User optionally sets a unit label.
+6. Later, user opens the item and records consumed quantity.
+7. App decreases current quantity.
+8. If current quantity is less than or equal to the low-stock threshold, the item appears in low-stock / action sections.
+
+### Time-based flow
+
+1. User creates a supply item.
+2. User selects time-based tracking.
+3. User sets start date.
+4. User sets end date or replacement date.
+5. App shows whether the item is active, due soon, or expired.
+6. When the user replaces the item, they can set a new start date and end date.
 
 Recommended early model direction:
 
@@ -252,12 +287,30 @@ Recommended early model direction:
 SupplyItem
   name: String
   category: String?
-  currentQuantity: Int
-  lowStockThreshold: Int
+  trackingType: SupplyTrackingType
+
+  // Quantity-based fields
+  currentQuantity: Int?
+  lowStockThreshold: Int?
   unitLabel: String?
+
+  // Time-based fields
+  startDate: Date?
+  endDate: Date?
+
+  // Common fields
   preferredMerchantName: String?
   preferredMerchantURL: String?
   notes: String?
+```
+
+Recommended computed states:
+
+```text
+isLowStock      // quantity-based: currentQuantity <= lowStockThreshold
+isExpired       // time-based: today > endDate
+isDueSoon       // time-based: endDate is near, exact threshold decided later
+needsAction     // low stock or expired/due soon
 ```
 
 Do not introduce a separate consumption history entity at the start. It can be added later only if the product needs usage analytics or undo/history support.
@@ -309,7 +362,8 @@ The architecture can later support:
 - manual action items;
 - better recurrence rules;
 - tests around date calculations;
-- optional supply consumption history.
+- optional supply consumption history;
+- more tracking types only if a real product case appears.
 
 ### Phase 2 only
 
@@ -333,16 +387,17 @@ Recommended order:
 
 1. Create minimal app folder structure only where needed.
 2. Add root navigation with a small `TabView`.
-3. Add first SwiftData model: `SupplyItem` with quantity-based fields.
+3. Add first SwiftData model: `SupplyItem` with explicit tracking type.
 4. Build Supplies list and create/edit flow.
-5. Add supply detail flow for recording consumed quantity.
-6. Add low-stock logic based on `currentQuantity <= lowStockThreshold`.
-7. Add `MaintenanceTask` model.
-8. Build Maintenance list and create/edit flow.
-9. Add Dashboard with computed due-soon/running-low sections.
-10. Add Merchant and ServiceProvider support only after core flows work.
-11. Add computed Action List.
-12. Polish UX and validate repeated usage.
+5. Add quantity-based detail flow for recording consumed quantity.
+6. Add quantity low-stock logic based on `currentQuantity <= lowStockThreshold`.
+7. Add time-based fields and status logic: active, due soon, expired.
+8. Add `MaintenanceTask` model.
+9. Build Maintenance list and create/edit flow.
+10. Add Dashboard with computed due-soon/running-low sections.
+11. Add Merchant and ServiceProvider support only after core flows work.
+12. Add computed Action List.
+13. Polish UX and validate repeated usage.
 
 ## 13. Acceptance criteria for this architecture
 
@@ -370,7 +425,8 @@ Do not decide yet:
 - monetization;
 - analytics;
 - widgets;
-- supply consumption history.
+- supply consumption history;
+- exact due-soon threshold for time-based supplies.
 
 These should be decided only when the relevant implementation slice starts.
 
