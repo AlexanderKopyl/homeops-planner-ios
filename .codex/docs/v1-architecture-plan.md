@@ -310,6 +310,22 @@ Supply tracking in V1 supports two explicit modes.
 
 Official type name: `SupplyTrackingType`.
 
+Enum storage strategy:
+
+```swift
+// Conceptual shape only. Implement in code when models are created.
+enum SupplyTrackingType: String, Codable {
+    case quantity
+    case time
+}
+```
+
+Reason:
+
+- `String` raw values are readable and stable;
+- `Codable` is practical for SwiftData persistence and future local export/import;
+- explicit naming avoids conflict with generic tracking concepts later.
+
 Allowed values for V1:
 
 ```text
