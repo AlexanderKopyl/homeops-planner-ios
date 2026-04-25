@@ -24,3 +24,15 @@ firebase_allowed = false
 external_packages_require_approval = true
 ci_cd_allowed = false
 subagents_allowed = false
+
+# MCP servers used by Codex for this project.
+# If the Codex CLI does not read project-local config on your machine,
+# copy these sections into ~/.codex/config.toml or add them via `codex mcp add`.
+
+[mcp_servers.sequentialthinking]
+command = "docker"
+args = ["run", "--rm", "-i", "mcp/sequentialthinking"]
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp@latest"]
