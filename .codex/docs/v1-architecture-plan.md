@@ -184,6 +184,8 @@ Supported MVP tracking types:
 1. **Quantity-based** — for items where the user knows how many units remain.
 2. **Time-based** — for items that are installed or started once and should be replaced after a known end date.
 
+Official enum name: `SupplyTrackingType`.
+
 The user chooses the tracking type when creating or editing a supply item.
 
 Quantity-based examples:
@@ -305,6 +307,15 @@ Likely fields later:
 ## 8. Supply tracking type decision
 
 Supply tracking in V1 supports two explicit modes.
+
+Official type name: `SupplyTrackingType`.
+
+Allowed values for V1:
+
+```text
+SupplyTrackingType.quantity
+SupplyTrackingType.time
+```
 
 ### Quantity-based flow
 
@@ -527,19 +538,20 @@ Recommended order:
 1. Create minimal app folder structure only where needed.
 2. Add root navigation with a small `TabView`.
 3. Add SwiftData model: `SupplyCategory`.
-4. Add SwiftData model: `SupplyItem` with explicit tracking type and required category.
-5. Build Supplies all-items list and create/edit flow.
-6. Add category assignment in supply form.
-7. Add inline category creation inside supply form.
-8. Add quantity-based detail flow for recording consumed quantity.
-9. Add quantity low-stock logic based on `currentQuantity <= lowStockThreshold`.
-10. Add time-based fields and status logic: active, due soon, expired.
-11. Add `MaintenanceTask` model.
-12. Build Maintenance list and create/edit flow.
-13. Add Dashboard with computed due-soon/running-low sections.
-14. Add Merchant and ServiceProvider support only after core flows work.
-15. Add computed Action List.
-16. Polish UX and validate repeated usage.
+4. Add `SupplyTrackingType` enum.
+5. Add SwiftData model: `SupplyItem` with explicit tracking type and required category.
+6. Build Supplies all-items list and create/edit flow.
+7. Add category assignment in supply form.
+8. Add inline category creation inside supply form.
+9. Add quantity-based detail flow for recording consumed quantity.
+10. Add quantity low-stock logic based on `currentQuantity <= lowStockThreshold`.
+11. Add time-based fields and status logic: active, due soon, expired.
+12. Add `MaintenanceTask` model.
+13. Build Maintenance list and create/edit flow.
+14. Add Dashboard with computed due-soon/running-low sections.
+15. Add Merchant and ServiceProvider support only after core flows work.
+16. Add computed Action List.
+17. Polish UX and validate repeated usage.
 
 ## 15. Acceptance criteria for this architecture
 
