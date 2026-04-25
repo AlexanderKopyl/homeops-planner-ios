@@ -27,15 +27,27 @@ Dashboard is the default entry point.
 
 ## 3. Core UX structure
 
+Dashboard uses a simple vertical layout:
+
 ```text
-Dashboard
-  Header
-  Quick Summary
-  Needs Attention
-  Running Low
-  Due Soon
-  Maintenance
+ScrollView
+  VStack
+    Header
+    Quick Summary
+    Needs Attention
+    Running Low
+    Due Soon
+    Maintenance
 ```
+
+V1 decision: the header is a normal block inside `ScrollView`, not pinned or sticky.
+
+Reason:
+
+- simpler SwiftUI implementation;
+- no special scroll behavior;
+- enough for MVP;
+- avoids navigation/header complexity before there is a real need.
 
 ## 4. Section details
 
@@ -45,6 +57,13 @@ Purpose:
 
 - give context;
 - keep screen grounded.
+
+Placement:
+
+- inside the main `ScrollView` as the first block;
+- not sticky;
+- not pinned;
+- no custom collapsing header.
 
 Content:
 
@@ -226,7 +245,8 @@ Do not design in V1:
 - family/multi-user views;
 - marketplace/store UI;
 - advanced filters;
-- tagging systems.
+- tagging systems;
+- sticky/pinned dashboard header.
 
 ---
 
@@ -246,6 +266,8 @@ Create wireframes (low-fidelity) for the Dashboard screen.
 ## Requirements
 
 - must follow section structure defined above;
+- must use `ScrollView` + `VStack` mental model;
+- header must be a normal first block inside the scroll content;
 - must be minimal and clean;
 - must feel like native iOS;
 - must prioritize readability and clarity;
@@ -262,6 +284,8 @@ Do NOT include:
 - category management UI here
 - settings
 - notifications UI
+- sticky header
+- collapsing header
 
 ## Output format
 
@@ -279,4 +303,4 @@ The design is good if:
 - screen is scannable in < 3 seconds;
 - no unnecessary elements are present;
 - sections feel ordered by priority;
-- it can be easily implemented with SwiftUI lists and stacks.
+- it can be easily implemented with SwiftUI `ScrollView` and `VStack`.
