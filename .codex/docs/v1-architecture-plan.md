@@ -171,15 +171,29 @@ Represents a household consumable that may run low.
 
 Examples: water filters, dishwasher tablets, detergent, batteries, light bulbs.
 
+V1 decision: supplies are tracked by **quantity**, not by estimated time usage.
+
+The user should be able to open a supply item and record how many units were consumed. The app then updates the remaining quantity and can mark the item as low or out of stock based on a configured low-stock threshold.
+
 Likely fields later:
 
 - name;
 - category;
-- status or quantity indicator;
-- low-soon date or reminder date;
-- preferred merchant reference or URL;
+- current quantity;
+- low-stock threshold;
+- unit label, for example `pcs`, `packs`, `tablets`, `filters`;
+- preferred merchant reference or purchase URL;
 - notes;
 - created/updated dates if needed locally.
+
+Explicitly postponed for early V1:
+
+- automatic consumption prediction;
+- usage-rate calculations;
+- barcode scanning;
+- price tracking;
+- store inventory integration;
+- remote product catalog.
 
 ### MaintenanceTask
 
@@ -218,7 +232,37 @@ Likely fields later:
 - website;
 - notes.
 
-## 8. Action List decision
+## 8. Supply quantity tracking decision
+
+Supply tracking in V1 is quantity-based.
+
+Core flow:
+
+1. User creates a supply item.
+2. User sets current quantity.
+3. User sets a low-stock threshold.
+4. User optionally sets a unit label.
+5. Later, user opens the item and records consumed quantity.
+6. App decreases current quantity.
+7. If current quantity is less than or equal to the low-stock threshold, the item appears in low-stock / action sections.
+
+Recommended early model direction:
+
+```text
+SupplyItem
+  name: String
+  category: String?
+  currentQuantity: Int
+  lowStockThreshold: Int
+  unitLabel: String?
+  preferredMerchantName: String?
+  preferredMerchantURL: String?
+  notes: String?
+```
+
+Do not introduce a separate consumption history entity at the start. It can be added later only if the product needs usage analytics or undo/history support.
+
+## 9. Action List decision
 
 For early V1, the Action List should preferably be **computed from Supplies and Maintenance Tasks** rather than stored as a separate SwiftData entity.
 
@@ -231,7 +275,7 @@ Reason:
 
 A separate `ActionItem` entity can be introduced later if manual ad-hoc actions become an explicit MVP requirement.
 
-## 9. Screen structure direction
+## 10. Screen structure direction
 
 Initial screen direction:
 
@@ -251,7 +295,7 @@ TabView
 
 Do not create too many first-level tabs early. The app should feel simple and operational, not like an admin system.
 
-## 10. Expansion path
+## 11. Expansion path
 
 ### Still compatible with V1
 
@@ -264,7 +308,8 @@ The architecture can later support:
 - richer dashboard grouping;
 - manual action items;
 - better recurrence rules;
-- tests around date calculations.
+- tests around date calculations;
+- optional supply consumption history.
 
 ### Phase 2 only
 
@@ -282,22 +327,24 @@ The following require explicit architectural reassessment:
 
 Do not prebuild abstractions for these in V1.
 
-## 11. Implementation order
+## 12. Implementation order
 
 Recommended order:
 
 1. Create minimal app folder structure only where needed.
 2. Add root navigation with a small `TabView`.
-3. Add first SwiftData model: `SupplyItem`.
+3. Add first SwiftData model: `SupplyItem` with quantity-based fields.
 4. Build Supplies list and create/edit flow.
-5. Add `MaintenanceTask` model.
-6. Build Maintenance list and create/edit flow.
-7. Add Dashboard with computed due-soon/running-low sections.
-8. Add Merchant and ServiceProvider support only after core flows work.
-9. Add computed Action List.
-10. Polish UX and validate repeated usage.
+5. Add supply detail flow for recording consumed quantity.
+6. Add low-stock logic based on `currentQuantity <= lowStockThreshold`.
+7. Add `MaintenanceTask` model.
+8. Build Maintenance list and create/edit flow.
+9. Add Dashboard with computed due-soon/running-low sections.
+10. Add Merchant and ServiceProvider support only after core flows work.
+11. Add computed Action List.
+12. Polish UX and validate repeated usage.
 
-## 12. Acceptance criteria for this architecture
+## 13. Acceptance criteria for this architecture
 
 The architecture is acceptable if:
 
@@ -309,7 +356,7 @@ The architecture is acceptable if:
 - MVP screens can be built incrementally;
 - V2 remains possible without polluting V1.
 
-## 13. Deferred decisions
+## 14. Deferred decisions
 
 Do not decide yet:
 
@@ -322,11 +369,12 @@ Do not decide yet:
 - testing framework depth;
 - monetization;
 - analytics;
-- widgets.
+- widgets;
+- supply consumption history.
 
 These should be decided only when the relevant implementation slice starts.
 
-## 14. Architecture decision rule
+## 15. Architecture decision rule
 
 Before adding a new layer, abstraction, model field, package, or feature, ask:
 
