@@ -78,6 +78,10 @@ HomeOpsPlanner/
       SupplyDetailView.swift
       SupplyFormView.swift
 
+    Categories/
+      CategoryListView.swift
+      CategoryFormView.swift
+
     Maintenance/
       MaintenanceListView.swift
       MaintenanceDetailView.swift
@@ -98,6 +102,7 @@ HomeOpsPlanner/
 
   Models/
     SupplyItem.swift
+    SupplyCategory.swift
     MaintenanceTask.swift
     Merchant.swift
     ServiceProvider.swift
@@ -126,6 +131,7 @@ Examples:
 
 - `Dashboard` shows due soon and pending items.
 - `Supplies` manages household consumables.
+- `Categories` manages flat supply categories.
 - `Maintenance` manages recurring home tasks.
 - `Merchants` manages preferred purchase sources.
 - `Providers` manages service contacts.
@@ -199,7 +205,7 @@ Time-based examples:
 Likely fields later:
 
 - name;
-- category;
+- category reference;
 - tracking type;
 - current quantity, for quantity-based items;
 - low-stock threshold, for quantity-based items;
@@ -219,6 +225,45 @@ Explicitly postponed for early V1:
 - store inventory integration;
 - remote product catalog;
 - separate consumption history entity.
+
+### SupplyCategory
+
+Represents a flat user-created category for grouping supplies.
+
+Examples:
+
+- Bathroom;
+- Kitchen;
+- Cleaning;
+- Filters;
+- Batteries;
+- Pet supplies.
+
+V1 decision: category is a separate SwiftData entity, not a plain string.
+
+Reason:
+
+- user can create categories once and reuse them;
+- supply creation can offer category selection;
+- lists can be grouped by category;
+- category names can be edited in one place;
+- this matches familiar shop/category mental models without requiring hierarchy.
+
+Likely fields later:
+
+- name;
+- optional note;
+- sort order, only if manual ordering becomes needed;
+- created date if useful for stable sorting.
+
+Explicitly postponed for V1:
+
+- nested categories;
+- category icons;
+- category colors;
+- category rules;
+- remote category templates;
+- separate category types for maintenance.
 
 ### MaintenanceTask
 
@@ -265,21 +310,23 @@ Supply tracking in V1 supports two explicit modes.
 
 1. User creates a supply item.
 2. User selects quantity-based tracking.
-3. User sets current quantity.
-4. User sets a low-stock threshold.
-5. User optionally sets a unit label.
-6. Later, user opens the item and records consumed quantity.
-7. App decreases current quantity.
-8. If current quantity is less than or equal to the low-stock threshold, the item appears in low-stock / action sections.
+3. User selects or creates a supply category.
+4. User sets current quantity.
+5. User sets a low-stock threshold.
+6. User optionally sets a unit label.
+7. Later, user opens the item and records consumed quantity.
+8. App decreases current quantity.
+9. If current quantity is less than or equal to the low-stock threshold, the item appears in low-stock / action sections.
 
 ### Time-based flow
 
 1. User creates a supply item.
 2. User selects time-based tracking.
-3. User sets `startDate`.
-4. User sets `endDate`.
-5. App shows whether the item is active, due soon, or expired.
-6. When the user replaces the item, they set a new `startDate` and `endDate`.
+3. User selects or creates a supply category.
+4. User sets `startDate`.
+5. User sets `endDate`.
+6. App shows whether the item is active, due soon, or expired.
+7. When the user replaces the item, they set a new `startDate` and `endDate`.
 
 V1 decision: time-based supplies store both `startDate` and `endDate`.
 
@@ -297,7 +344,7 @@ Recommended early model direction:
 ```text
 SupplyItem
   name: String
-  category: String?
+  category: SupplyCategory?
   trackingType: SupplyTrackingType
 
   // Quantity-based fields
@@ -313,6 +360,10 @@ SupplyItem
   preferredMerchantName: String?
   preferredMerchantURL: String?
   notes: String?
+
+SupplyCategory
+  name: String
+  note: String?
 ```
 
 Recommended computed states:
@@ -326,7 +377,43 @@ needsAction     // low stock or expired/due soon
 
 Do not introduce a separate consumption history entity at the start. It can be added later only if the product needs usage analytics or undo/history support.
 
-## 9. Action List decision
+## 9. Supply category decision
+
+Supply categories are separate local entities in V1.
+
+Core category flow:
+
+1. User opens category management or creates a category inline while creating a supply.
+2. User enters category name.
+3. User can assign supplies to that category.
+4. Supply list can group or filter items by category.
+5. Editing a category name affects all assigned supplies.
+
+Recommended relationship:
+
+```text
+SupplyCategory 1 → many SupplyItem
+SupplyItem many → 1 optional SupplyCategory
+```
+
+V1 category scope:
+
+- flat categories only;
+- categories are local-only;
+- category is optional for a supply item;
+- deleting a category should not necessarily delete supplies.
+
+Recommended delete behavior:
+
+```text
+When deleting category:
+  keep supplies
+  remove category reference from assigned supplies
+```
+
+This is safer than cascade delete for V1.
+
+## 10. Action List decision
 
 For early V1, the Action List should preferably be **computed from Supplies and Maintenance Tasks** rather than stored as a separate SwiftData entity.
 
@@ -339,7 +426,7 @@ Reason:
 
 A separate `ActionItem` entity can be introduced later if manual ad-hoc actions become an explicit MVP requirement.
 
-## 10. Screen structure direction
+## 11. Screen structure direction
 
 Initial screen direction:
 
@@ -353,13 +440,14 @@ TabView
 
 `More` can later contain:
 
+- Categories;
 - Merchants;
 - Service Providers;
 - Settings.
 
 Do not create too many first-level tabs early. The app should feel simple and operational, not like an admin system.
 
-## 11. Expansion path
+## 12. Expansion path
 
 ### Still compatible with V1
 
@@ -374,7 +462,8 @@ The architecture can later support:
 - better recurrence rules;
 - tests around date calculations;
 - optional supply consumption history;
-- more tracking types only if a real product case appears.
+- more tracking types only if a real product case appears;
+- category icons/colors only if the UI needs them.
 
 ### Phase 2 only
 
@@ -392,25 +481,27 @@ The following require explicit architectural reassessment:
 
 Do not prebuild abstractions for these in V1.
 
-## 12. Implementation order
+## 13. Implementation order
 
 Recommended order:
 
 1. Create minimal app folder structure only where needed.
 2. Add root navigation with a small `TabView`.
-3. Add first SwiftData model: `SupplyItem` with explicit tracking type.
-4. Build Supplies list and create/edit flow.
-5. Add quantity-based detail flow for recording consumed quantity.
-6. Add quantity low-stock logic based on `currentQuantity <= lowStockThreshold`.
-7. Add time-based fields and status logic: active, due soon, expired.
-8. Add `MaintenanceTask` model.
-9. Build Maintenance list and create/edit flow.
-10. Add Dashboard with computed due-soon/running-low sections.
-11. Add Merchant and ServiceProvider support only after core flows work.
-12. Add computed Action List.
-13. Polish UX and validate repeated usage.
+3. Add SwiftData model: `SupplyCategory`.
+4. Add SwiftData model: `SupplyItem` with explicit tracking type.
+5. Build minimal category create/list flow or inline category creation.
+6. Build Supplies list and create/edit flow.
+7. Add quantity-based detail flow for recording consumed quantity.
+8. Add quantity low-stock logic based on `currentQuantity <= lowStockThreshold`.
+9. Add time-based fields and status logic: active, due soon, expired.
+10. Add `MaintenanceTask` model.
+11. Build Maintenance list and create/edit flow.
+12. Add Dashboard with computed due-soon/running-low sections.
+13. Add Merchant and ServiceProvider support only after core flows work.
+14. Add computed Action List.
+15. Polish UX and validate repeated usage.
 
-## 13. Acceptance criteria for this architecture
+## 14. Acceptance criteria for this architecture
 
 The architecture is acceptable if:
 
@@ -422,11 +513,11 @@ The architecture is acceptable if:
 - MVP screens can be built incrementally;
 - V2 remains possible without polluting V1.
 
-## 14. Deferred decisions
+## 15. Deferred decisions
 
 Do not decide yet:
 
-- exact SwiftData relationships;
+- exact SwiftData delete rule syntax;
 - exact recurrence algorithm;
 - whether ActionItem is persisted;
 - notification strategy;
@@ -437,11 +528,13 @@ Do not decide yet:
 - analytics;
 - widgets;
 - supply consumption history;
-- exact due-soon threshold for time-based supplies.
+- exact due-soon threshold for time-based supplies;
+- category icons/colors;
+- nested categories.
 
 These should be decided only when the relevant implementation slice starts.
 
-## 15. Architecture decision rule
+## 16. Architecture decision rule
 
 Before adding a new layer, abstraction, model field, package, or feature, ask:
 
