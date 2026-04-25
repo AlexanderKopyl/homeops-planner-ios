@@ -1,0 +1,26 @@
+# Codex configuration for HomeOps Planner.
+# Keep this file minimal until the project needs stricter automation.
+
+project_doc_fallback_filenames = ["AGENTS.md"]
+
+[project]
+name = "homeops-planner-ios"
+description = "HomeOps Planner — iOS-only local-first SwiftUI app for recurring household supplies and maintenance tasks."
+
+[workflow]
+read_first = [
+  "AGENTS.md",
+  ".codex/docs/project-overview.md",
+  ".codex/docs/mvp-boundary.md",
+  ".codex/docs/architecture-notes.md"
+]
+
+[guardrails]
+version_1_only = true
+backend_allowed = false
+auth_allowed = false
+cloud_sync_allowed = false
+firebase_allowed = false
+external_packages_require_approval = true
+ci_cd_allowed = false
+subagents_allowed = false
