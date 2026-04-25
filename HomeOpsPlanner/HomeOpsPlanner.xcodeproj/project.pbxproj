@@ -29,9 +29,23 @@
 		7639BF622F9CBAC30022214D /* HomeOpsPlannerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HomeOpsPlannerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7639BF752F9CBAC30022214D /* Exceptions for "HomeOpsPlanner" folder in "HomeOpsPlanner" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Features/.Features.gitkeep,
+				Shared/.Shared.gitkeep,
+			);
+			target = 7639BF4A2F9CBAC20022214D /* HomeOpsPlanner */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7639BF4D2F9CBAC20022214D /* HomeOpsPlanner */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7639BF752F9CBAC30022214D /* Exceptions for "HomeOpsPlanner" folder in "HomeOpsPlanner" target */,
+			);
 			path = HomeOpsPlanner;
 			sourceTree = "<group>";
 		};
