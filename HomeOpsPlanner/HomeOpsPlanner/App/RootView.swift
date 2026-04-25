@@ -14,8 +14,10 @@ struct RootView: View {
         if hasCompletedWelcome {
             ContentView()
         } else {
-            WelcomeView {
-                hasCompletedWelcome = true
+            SplashIntroView {
+                WelcomeView {
+                    hasCompletedWelcome = true
+                }
             }
         }
     }
