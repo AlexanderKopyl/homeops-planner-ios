@@ -276,10 +276,21 @@ Supply tracking in V1 supports two explicit modes.
 
 1. User creates a supply item.
 2. User selects time-based tracking.
-3. User sets start date.
-4. User sets end date or replacement date.
+3. User sets `startDate`.
+4. User sets `endDate`.
 5. App shows whether the item is active, due soon, or expired.
-6. When the user replaces the item, they can set a new start date and end date.
+6. When the user replaces the item, they set a new `startDate` and `endDate`.
+
+V1 decision: time-based supplies store both `startDate` and `endDate`.
+
+Reason:
+
+- `startDate` captures when the consumable was installed or started;
+- `endDate` captures when it should be replaced;
+- the pair supports progress display later without changing the model;
+- the app does not need automatic duration or recurrence calculation in the first implementation.
+
+Important distinction: time-based supplies are still consumables, not maintenance tasks. They model the lifecycle of an item that was installed or started. Recurring service work belongs to `MaintenanceTask`.
 
 Recommended early model direction:
 
