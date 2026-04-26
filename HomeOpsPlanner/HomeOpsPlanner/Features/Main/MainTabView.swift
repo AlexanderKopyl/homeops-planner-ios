@@ -20,7 +20,7 @@ struct MainTabView: View {
                     Label("Supplies", systemImage: "shippingbox")
                 }
 
-            PlaceholderTabView(title: "Maintenance", systemImage: "wrench.and.screwdriver")
+            MaintenanceListView()
                 .tabItem {
                     Label("Maintenance", systemImage: "wrench.and.screwdriver")
                 }
