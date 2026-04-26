@@ -23,12 +23,16 @@ struct MaintenanceListView: View {
                     )
                 } else {
                     List(tasks) { task in
-                        MaintenanceRowView(
-                            title: task.title,
-                            statusText: statusText(for: task),
-                            frequencyNote: task.frequencyNote,
-                            providerName: task.providerName
-                        )
+                        NavigationLink {
+                            MaintenanceDetailView(task: task)
+                        } label: {
+                            MaintenanceRowView(
+                                title: task.title,
+                                statusText: statusText(for: task),
+                                frequencyNote: task.frequencyNote,
+                                providerName: task.providerName
+                            )
+                        }
                     }
                 }
             }
