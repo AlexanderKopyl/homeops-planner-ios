@@ -9,8 +9,9 @@ import SwiftData
 import SwiftUI
 
 struct SupplyDetailView: View {
-    let supply: SupplyItem
-
+    
+    @Environment(\.modelContext) private var modelContext
+    @Bindable var supply: SupplyItem
     @State private var isShowingEditForm = false
 
     var body: some View {
@@ -69,6 +70,7 @@ struct SupplyDetailView: View {
                     addOne()
                 }
             }
+            .buttonStyle(.borderless)
         }
     }
 
@@ -150,11 +152,13 @@ struct SupplyDetailView: View {
     private func useOne() {
         let currentQuantity = supply.currentQuantity ?? 0
         supply.currentQuantity = max(currentQuantity - 1, 0)
+        try? modelContext.save()
     }
 
     private func addOne() {
         let currentQuantity = supply.currentQuantity ?? 0
         supply.currentQuantity = currentQuantity + 1
+        try? modelContext.save()
     }
 
     private func dateText(for date: Date) -> String {
