@@ -108,31 +108,11 @@ struct SupplyDetailView: View {
     }
 
     private var quantityStatusText: String {
-        guard supply.currentQuantity != nil else {
-            return "Quantity not set"
-        }
-
-        if supply.isLowStock {
-            return "Low stock"
-        }
-
-        return "In stock"
+        DateStatusFormatter.supplyDetailQuantityStatusText(for: supply)
     }
 
     private var timeStatusText: String {
-        guard supply.endDate != nil else {
-            return "Replacement date not set"
-        }
-
-        if supply.isExpired {
-            return "Expired"
-        }
-
-        if supply.isDueSoon {
-            return "Due soon"
-        }
-
-        return "Active"
+        DateStatusFormatter.supplyDetailTimeStatusText(for: supply)
     }
 
     private var quantityText: String {
@@ -178,7 +158,7 @@ struct SupplyDetailView: View {
     }
 
     private func dateText(for date: Date) -> String {
-        return date.formatted(date: .abbreviated, time: .omitted)
+        DateStatusFormatter.shortDateText(for: date)
     }
 
     private func optionalTrimmedText(_ text: String?) -> String? {

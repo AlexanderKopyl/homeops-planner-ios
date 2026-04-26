@@ -65,19 +65,11 @@ struct MaintenanceDetailView: View {
     }
 
     private var statusText: String {
-        if task.isOverdue {
-            return "Overdue \(relativeDateText(for: task.nextDueDate))"
-        }
-
-        if Calendar.current.isDateInToday(task.nextDueDate) {
-            return "Due today"
-        }
-
-        if task.isDueSoon {
-            return "Due soon \(relativeDateText(for: task.nextDueDate))"
-        }
-
-        return "Due \(dateText(for: task.nextDueDate))"
+        DateStatusFormatter.maintenanceStatusText(
+            for: task,
+            dueSoonPrefix: "Due soon",
+            futureUsesShortDate: true
+        )
     }
 
     private var hasDetails: Bool {
@@ -102,11 +94,7 @@ struct MaintenanceDetailView: View {
     }
 
     private func dateText(for date: Date) -> String {
-        date.formatted(date: .abbreviated, time: .omitted)
-    }
-
-    private func relativeDateText(for date: Date) -> String {
-        date.formatted(.relative(presentation: .numeric, unitsStyle: .wide))
+        DateStatusFormatter.shortDateText(for: date)
     }
 
     private func optionalTrimmedText(_ text: String?) -> String? {

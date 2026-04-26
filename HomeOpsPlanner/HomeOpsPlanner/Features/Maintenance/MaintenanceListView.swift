@@ -57,23 +57,11 @@ struct MaintenanceListView: View {
     }
 
     private func statusText(for task: MaintenanceTask) -> String {
-        if task.isOverdue {
-            return "Overdue \(relativeDateText(for: task.nextDueDate))"
-        }
-
-        if Calendar.current.isDateInToday(task.nextDueDate) {
-            return "Due today"
-        }
-
-        if task.isDueSoon {
-            return "Due soon \(relativeDateText(for: task.nextDueDate))"
-        }
-
-        return "Due \(task.nextDueDate.formatted(date: .abbreviated, time: .omitted))"
-    }
-
-    private func relativeDateText(for date: Date) -> String {
-        date.formatted(.relative(presentation: .numeric, unitsStyle: .wide))
+        DateStatusFormatter.maintenanceStatusText(
+            for: task,
+            dueSoonPrefix: "Due soon",
+            futureUsesShortDate: true
+        )
     }
 
     private func deleteTasks(at offsets: IndexSet) {

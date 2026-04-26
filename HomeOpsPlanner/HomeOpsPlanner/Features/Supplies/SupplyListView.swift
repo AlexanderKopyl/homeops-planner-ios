@@ -65,50 +65,15 @@ struct SupplyListView: View {
     }
 
     private func quantityStatusText(for supply: SupplyItem) -> String {
-        guard let currentQuantity = supply.currentQuantity else {
-            return "Quantity not set"
-        }
-
-        let quantityText: String
-        if let unitLabel = supply.unitLabel, !unitLabel.isEmpty {
-            quantityText = "\(currentQuantity) \(unitLabel) left"
-        } else {
-            quantityText = "\(currentQuantity) left"
-        }
-
-        if supply.isLowStock {
-            return "\(quantityText) · Low stock"
-        }
-
-        if let lowStockThreshold = supply.lowStockThreshold {
-            return "\(quantityText) · Low at \(lowStockThreshold)"
-        }
-
-        return quantityText
+        DateStatusFormatter.supplyListQuantityStatusText(for: supply)
     }
 
     private func replacementStatusText(for supply: SupplyItem) -> String {
-        guard let endDate = supply.endDate else {
-            return "Replacement date not set"
-        }
-
-        if Calendar.current.isDateInToday(endDate) {
-            return "Replace today"
-        }
-
-        if supply.isExpired {
-            return "Expired \(relativeDateText(for: endDate))"
-        }
-
-        if supply.isDueSoon {
-            return "Replace soon · \(endDate.formatted(date: .abbreviated, time: .omitted))"
-        }
-
-        return "Replace by \(endDate.formatted(date: .abbreviated, time: .omitted))"
-    }
-
-    private func relativeDateText(for date: Date) -> String {
-        date.formatted(.relative(presentation: .named, unitsStyle: .wide))
+        DateStatusFormatter.replacementStatusText(
+            for: supply,
+            dueSoonUsesShortDate: true,
+            expiredRelativePresentation: .named
+        )
     }
 
     private func deleteSupplies(at offsets: IndexSet) {

@@ -106,47 +106,22 @@ struct ActionListView: View {
     }
 
     private func quantityText(for supply: SupplyItem) -> String {
-        guard let currentQuantity = supply.currentQuantity else {
-            return "Low stock"
-        }
-
-        if let unitLabel = supply.unitLabel, !unitLabel.isEmpty {
-            return "\(currentQuantity) \(unitLabel) left"
-        }
-
-        return "\(currentQuantity) left"
+        DateStatusFormatter.quantityLeftText(
+            quantity: supply.currentQuantity,
+            unitLabel: supply.unitLabel,
+            missingText: "Low stock"
+        )
     }
 
     private func replacementText(for supply: SupplyItem) -> String {
-        guard let endDate = supply.endDate else {
-            return supply.isExpired ? "Expired" : "Due soon"
-        }
-
-        if Calendar.current.isDateInToday(endDate) {
-            return "Replace today"
-        }
-
-        if supply.isExpired {
-            return "Expired \(relativeDateText(for: endDate))"
-        }
-
-        return "Replace by \(endDate.formatted(date: .abbreviated, time: .omitted))"
+        DateStatusFormatter.replacementStatusText(
+            for: supply,
+            missingTextForState: { $0.isExpired ? "Expired" : "Due soon" }
+        )
     }
 
     private func maintenanceText(for task: MaintenanceTask) -> String {
-        if task.isOverdue {
-            return "Overdue \(relativeDateText(for: task.nextDueDate))"
-        }
-
-        if Calendar.current.isDateInToday(task.nextDueDate) {
-            return "Due today"
-        }
-
-        return "Due \(relativeDateText(for: task.nextDueDate))"
-    }
-
-    private func relativeDateText(for date: Date) -> String {
-        date.formatted(.relative(presentation: .numeric, unitsStyle: .wide))
+        DateStatusFormatter.maintenanceStatusText(for: task)
     }
 
     private func actionID(sourceType: String, sourceID: String, reason: String) -> String {

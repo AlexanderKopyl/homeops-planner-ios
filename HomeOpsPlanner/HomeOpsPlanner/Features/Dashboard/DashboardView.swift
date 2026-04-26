@@ -23,7 +23,7 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 24) {
                     DashboardHeaderView(
                         title: "HomeOps",
-                        subtitle: "Today, \(Date.now.formatted(date: .abbreviated, time: .omitted))"
+                        subtitle: "Today, \(DateStatusFormatter.shortDateText(for: Date.now))"
                     )
 
                     if hasDashboardData {
@@ -172,31 +172,14 @@ struct DashboardView: View {
     }
 
     private func quantityText(for item: SupplyItem) -> String {
-        guard let currentQuantity = item.currentQuantity else {
-            return "Quantity not set"
-        }
-
-        if let unitLabel = item.unitLabel, !unitLabel.isEmpty {
-            return "\(currentQuantity) \(unitLabel) left"
-        }
-
-        return "\(currentQuantity) left"
+        DateStatusFormatter.quantityLeftText(
+            quantity: item.currentQuantity,
+            unitLabel: item.unitLabel
+        )
     }
 
     private func replacementText(for item: SupplyItem) -> String {
-        guard let endDate = item.endDate else {
-            return "Replacement date not set"
-        }
-
-        if Calendar.current.isDateInToday(endDate) {
-            return "Replace today"
-        }
-
-        if endDate < Date() {
-            return "Expired \(relativeDateText(for: endDate))"
-        }
-
-        return "Replace by \(endDate.formatted(date: .abbreviated, time: .omitted))"
+        DateStatusFormatter.replacementStatusText(for: item)
     }
 
     private func supplyStatusText(for item: SupplyItem) -> String {
@@ -212,23 +195,11 @@ struct DashboardView: View {
     }
 
     private func maintenanceSubtitle(for task: MaintenanceTask) -> String {
-        if task.isOverdue {
-            return "Overdue \(relativeDateText(for: task.nextDueDate))"
-        }
-
-        if Calendar.current.isDateInToday(task.nextDueDate) {
-            return "Due today"
-        }
-
-        return "Due \(relativeDateText(for: task.nextDueDate))"
+        DateStatusFormatter.maintenanceStatusText(for: task)
     }
 
     private func maintenanceStatusText(for task: MaintenanceTask) -> String {
         task.isOverdue ? "Overdue" : "Soon"
-    }
-
-    private func relativeDateText(for date: Date) -> String {
-        date.formatted(.relative(presentation: .numeric, unitsStyle: .wide))
     }
 
     #if DEBUG
