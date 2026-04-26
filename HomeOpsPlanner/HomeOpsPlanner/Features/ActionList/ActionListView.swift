@@ -23,7 +23,11 @@ struct ActionListView: View {
                     )
                 } else {
                     List(actions) { action in
-                        ActionRowView(action: action)
+                        NavigationLink {
+                            destination(for: action)
+                        } label: {
+                            ActionRowView(action: action)
+                        }
                     }
                     .listStyle(.insetGrouped)
                 }
@@ -48,7 +52,8 @@ struct ActionListView: View {
                     id: actionID(sourceType: "supply", sourceID: sourceID(for: supply), reason: "expired"),
                     title: supply.name,
                     reason: replacementText(for: supply),
-                    sourceType: "Supply"
+                    sourceType: "Supply",
+                    source: .supply(supply)
                 )
             }
     }
@@ -61,7 +66,8 @@ struct ActionListView: View {
                     id: actionID(sourceType: "maintenance", sourceID: sourceID(for: task), reason: "overdue"),
                     title: task.title,
                     reason: maintenanceText(for: task),
-                    sourceType: "Maintenance"
+                    sourceType: "Maintenance",
+                    source: .maintenance(task)
                 )
             }
     }
@@ -74,7 +80,8 @@ struct ActionListView: View {
                     id: actionID(sourceType: "supply", sourceID: sourceID(for: supply), reason: "low-stock"),
                     title: supply.name,
                     reason: quantityText(for: supply),
-                    sourceType: "Supply"
+                    sourceType: "Supply",
+                    source: .supply(supply)
                 )
             }
     }
@@ -87,7 +94,8 @@ struct ActionListView: View {
                     id: actionID(sourceType: "supply", sourceID: sourceID(for: supply), reason: "due-soon"),
                     title: supply.name,
                     reason: replacementText(for: supply),
-                    sourceType: "Supply"
+                    sourceType: "Supply",
+                    source: .supply(supply)
                 )
             }
     }
@@ -100,9 +108,20 @@ struct ActionListView: View {
                     id: actionID(sourceType: "maintenance", sourceID: sourceID(for: task), reason: "due-soon"),
                     title: task.title,
                     reason: maintenanceText(for: task),
-                    sourceType: "Maintenance"
+                    sourceType: "Maintenance",
+                    source: .maintenance(task)
                 )
             }
+    }
+
+    @ViewBuilder
+    private func destination(for action: DisplayAction) -> some View {
+        switch action.source {
+        case .supply(let supply):
+            SupplyDetailView(supply: supply)
+        case .maintenance(let task):
+            MaintenanceDetailView(task: task)
+        }
     }
 
     private func quantityText(for supply: SupplyItem) -> String {
@@ -142,6 +161,12 @@ private struct DisplayAction: Identifiable {
     let title: String
     let reason: String
     let sourceType: String
+    let source: DisplayActionSource
+}
+
+private enum DisplayActionSource {
+    case supply(SupplyItem)
+    case maintenance(MaintenanceTask)
 }
 
 private struct ActionRowView: View {
