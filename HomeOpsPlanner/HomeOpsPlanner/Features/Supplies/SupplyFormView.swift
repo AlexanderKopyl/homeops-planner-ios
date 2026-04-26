@@ -16,6 +16,7 @@ struct SupplyFormView: View {
 
     @State private var name = ""
     @State private var selectedCategory: SupplyCategory?
+    @State private var newCategoryName = ""
     @State private var trackingType = SupplyTrackingType.quantity
     @State private var currentQuantity = ""
     @State private var lowStockThreshold = ""
@@ -31,7 +32,7 @@ struct SupplyFormView: View {
                     TextField("Name", text: $name)
 
                     if categories.isEmpty {
-                        Text("Create a category first.")
+                        Text("Add a category to continue.")
                             .foregroundStyle(.secondary)
                     } else {
                         Picker("Category", selection: $selectedCategory) {
@@ -44,6 +45,13 @@ struct SupplyFormView: View {
                             }
                         }
                     }
+
+                    TextField("New category name", text: $newCategoryName)
+
+                    Button("Add Category") {
+                        addCategory()
+                    }
+                    .disabled(trimmedNewCategoryName.isEmpty)
 
                     Picker("Tracking type", selection: $trackingType) {
                         Text("Quantity")
@@ -122,6 +130,10 @@ struct SupplyFormView: View {
         name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var trimmedNewCategoryName: String {
+        newCategoryName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     private var trimmedUnitLabel: String? {
         optionalTrimmedText(unitLabel)
     }
@@ -136,6 +148,29 @@ struct SupplyFormView: View {
 
     private var parsedLowStockThreshold: Int? {
         nonNegativeInteger(from: lowStockThreshold)
+    }
+
+    private func addCategory() {
+        let categoryName = trimmedNewCategoryName
+        guard !categoryName.isEmpty else {
+            return
+        }
+
+        if let existingCategory = categories.first(where: { category in
+            category.name.compare(
+                categoryName,
+                options: [.caseInsensitive, .diacriticInsensitive]
+            ) == .orderedSame
+        }) {
+            selectedCategory = existingCategory
+            newCategoryName = ""
+            return
+        }
+
+        let category = SupplyCategory(name: categoryName)
+        modelContext.insert(category)
+        selectedCategory = category
+        newCategoryName = ""
     }
 
     private func saveSupply() {
