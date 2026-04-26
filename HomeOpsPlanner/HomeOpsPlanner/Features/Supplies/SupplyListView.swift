@@ -23,11 +23,15 @@ struct SupplyListView: View {
                     )
                 } else {
                     List(supplies) { supply in
-                        SupplyRowView(
-                            name: supply.name,
-                            categoryName: supply.category.name,
-                            statusText: statusText(for: supply)
-                        )
+                        NavigationLink {
+                            SupplyDetailView(supply: supply)
+                        } label: {
+                            SupplyRowView(
+                                name: supply.name,
+                                categoryName: supply.category.name,
+                                statusText: statusText(for: supply)
+                            )
+                        }
                     }
                 }
             }
