@@ -11,6 +11,8 @@ import SwiftUI
 struct SupplyDetailView: View {
     let supply: SupplyItem
 
+    @State private var isShowingEditForm = false
+
     var body: some View {
         Form {
             Section("Basics") {
@@ -34,6 +36,16 @@ struct SupplyDetailView: View {
         }
         .navigationTitle(supply.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Edit") {
+                    isShowingEditForm = true
+                }
+            }
+        }
+        .sheet(isPresented: $isShowingEditForm) {
+            SupplyFormView(supply: supply)
+        }
     }
 
     private var quantitySection: some View {

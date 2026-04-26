@@ -14,6 +14,8 @@ struct SupplyFormView: View {
 
     @Query(sort: \SupplyCategory.name) private var categories: [SupplyCategory]
 
+    private let supply: SupplyItem?
+
     @State private var name = ""
     @State private var selectedCategory: SupplyCategory?
     @State private var newCategoryName = ""
@@ -24,6 +26,20 @@ struct SupplyFormView: View {
     @State private var startDate = Date()
     @State private var endDate = Date()
     @State private var notes = ""
+
+    init(supply: SupplyItem? = nil) {
+        self.supply = supply
+
+        _name = State(initialValue: supply?.name ?? "")
+        _selectedCategory = State(initialValue: supply?.category)
+        _trackingType = State(initialValue: supply?.trackingType ?? .quantity)
+        _currentQuantity = State(initialValue: supply?.currentQuantity.map(String.init) ?? "")
+        _lowStockThreshold = State(initialValue: supply?.lowStockThreshold.map(String.init) ?? "")
+        _unitLabel = State(initialValue: supply?.unitLabel ?? "")
+        _startDate = State(initialValue: supply?.startDate ?? Date())
+        _endDate = State(initialValue: supply?.endDate ?? Date())
+        _notes = State(initialValue: supply?.notes ?? "")
+    }
 
     var body: some View {
         NavigationStack {
@@ -93,7 +109,7 @@ struct SupplyFormView: View {
                         .lineLimit(3...6)
                 }
             }
-            .navigationTitle("New Supply")
+            .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -110,6 +126,10 @@ struct SupplyFormView: View {
                 }
             }
         }
+    }
+
+    private var navigationTitle: String {
+        supply == nil ? "New Supply" : "Edit Supply"
     }
 
     private var canSave: Bool {
@@ -178,20 +198,46 @@ struct SupplyFormView: View {
             return
         }
 
-        let supply = SupplyItem(
-            name: trimmedName,
-            category: selectedCategory,
-            trackingType: trackingType,
-            notes: trimmedNotes,
-            currentQuantity: trackingType == .quantity ? parsedCurrentQuantity : nil,
-            lowStockThreshold: trackingType == .quantity ? parsedLowStockThreshold : nil,
-            unitLabel: trackingType == .quantity ? trimmedUnitLabel : nil,
-            startDate: trackingType == .time ? startDate : nil,
-            endDate: trackingType == .time ? endDate : nil
-        )
+        if let supply {
+            update(supply, category: selectedCategory)
+        } else {
+            let supply = SupplyItem(
+                name: trimmedName,
+                category: selectedCategory,
+                trackingType: trackingType,
+                notes: trimmedNotes,
+                currentQuantity: trackingType == .quantity ? parsedCurrentQuantity : nil,
+                lowStockThreshold: trackingType == .quantity ? parsedLowStockThreshold : nil,
+                unitLabel: trackingType == .quantity ? trimmedUnitLabel : nil,
+                startDate: trackingType == .time ? startDate : nil,
+                endDate: trackingType == .time ? endDate : nil
+            )
 
-        modelContext.insert(supply)
+            modelContext.insert(supply)
+        }
+
         dismiss()
+    }
+
+    private func update(_ supply: SupplyItem, category: SupplyCategory) {
+        supply.name = trimmedName
+        supply.category = category
+        supply.trackingType = trackingType
+        supply.notes = trimmedNotes
+
+        if trackingType == .quantity {
+            supply.currentQuantity = parsedCurrentQuantity
+            supply.lowStockThreshold = parsedLowStockThreshold
+            supply.unitLabel = trimmedUnitLabel
+            supply.startDate = nil
+            supply.endDate = nil
+        } else {
+            supply.currentQuantity = nil
+            supply.lowStockThreshold = nil
+            supply.unitLabel = nil
+            supply.startDate = startDate
+            supply.endDate = endDate
+        }
     }
 
     private func optionalTrimmedText(_ text: String) -> String? {
