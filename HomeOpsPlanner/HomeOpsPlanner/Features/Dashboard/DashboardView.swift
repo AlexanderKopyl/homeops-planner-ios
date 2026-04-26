@@ -148,11 +148,16 @@ struct DashboardView: View {
             }
 
             let item = items[index]
-            DashboardItemRowView(
-                title: item.name,
-                subtitle: supplySubtitle(for: item),
-                statusText: showStatus ? supplyStatusText(for: item) : nil
-            )
+            NavigationLink {
+                SupplyDetailView(supply: item)
+            } label: {
+                DashboardItemRowView(
+                    title: item.name,
+                    subtitle: supplySubtitle(for: item),
+                    statusText: showStatus ? supplyStatusText(for: item) : nil
+                )
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -164,11 +169,16 @@ struct DashboardView: View {
             }
 
             let task = tasks[index]
-            DashboardItemRowView(
-                title: task.title,
-                subtitle: maintenanceSubtitle(for: task),
-                statusText: showStatus ? maintenanceStatusText(for: task) : nil
-            )
+            NavigationLink {
+                MaintenanceDetailView(task: task)
+            } label: {
+                DashboardItemRowView(
+                    title: task.title,
+                    subtitle: maintenanceSubtitle(for: task),
+                    statusText: showStatus ? maintenanceStatusText(for: task) : nil
+                )
+            }
+            .buttonStyle(.plain)
         }
     }
 
