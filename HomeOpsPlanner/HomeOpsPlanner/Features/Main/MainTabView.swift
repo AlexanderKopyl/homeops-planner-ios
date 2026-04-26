@@ -25,26 +25,10 @@ struct MainTabView: View {
                     Label("Maintenance", systemImage: "wrench.and.screwdriver")
                 }
 
-            PlaceholderTabView(title: "Actions", systemImage: "checklist")
+            ActionListView()
                 .tabItem {
                     Label("Actions", systemImage: "checklist")
                 }
-        }
-    }
-}
-
-private struct PlaceholderTabView: View {
-    let title: String
-    let systemImage: String
-
-    var body: some View {
-        NavigationStack {
-            ContentUnavailableView(
-                title,
-                systemImage: systemImage,
-                description: Text("This area will be added in a future MVP step.")
-            )
-            .navigationTitle(title)
         }
     }
 }
