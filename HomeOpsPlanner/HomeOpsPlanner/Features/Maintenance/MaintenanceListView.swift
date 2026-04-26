@@ -9,6 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct MaintenanceListView: View {
+    @Environment(\.modelContext) private var modelContext
     @Query(sort: \MaintenanceTask.nextDueDate) private var tasks: [MaintenanceTask]
     @State private var isShowingMaintenanceForm = false
 
@@ -22,17 +23,20 @@ struct MaintenanceListView: View {
                         description: Text("Add recurring home maintenance tasks to track what is due or overdue.")
                     )
                 } else {
-                    List(tasks) { task in
-                        NavigationLink {
-                            MaintenanceDetailView(task: task)
-                        } label: {
-                            MaintenanceRowView(
-                                title: task.title,
-                                statusText: statusText(for: task),
-                                frequencyNote: task.frequencyNote,
-                                providerName: task.providerName
-                            )
+                    List {
+                        ForEach(tasks) { task in
+                            NavigationLink {
+                                MaintenanceDetailView(task: task)
+                            } label: {
+                                MaintenanceRowView(
+                                    title: task.title,
+                                    statusText: statusText(for: task),
+                                    frequencyNote: task.frequencyNote,
+                                    providerName: task.providerName
+                                )
+                            }
                         }
+                        .onDelete(perform: deleteTasks)
                     }
                 }
             }
@@ -70,6 +74,12 @@ struct MaintenanceListView: View {
 
     private func relativeDateText(for date: Date) -> String {
         date.formatted(.relative(presentation: .numeric, unitsStyle: .wide))
+    }
+
+    private func deleteTasks(at offsets: IndexSet) {
+        for offset in offsets {
+            modelContext.delete(tasks[offset])
+        }
     }
 }
 

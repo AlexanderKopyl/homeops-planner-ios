@@ -9,6 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct SupplyListView: View {
+    @Environment(\.modelContext) private var modelContext
     @Query(sort: \SupplyItem.name) private var supplies: [SupplyItem]
     @State private var isShowingSupplyForm = false
 
@@ -22,16 +23,19 @@ struct SupplyListView: View {
                         description: Text("Add household supplies to track what runs low or needs replacement.")
                     )
                 } else {
-                    List(supplies) { supply in
-                        NavigationLink {
-                            SupplyDetailView(supply: supply)
-                        } label: {
-                            SupplyRowView(
-                                name: supply.name,
-                                categoryName: supply.category.name,
-                                statusText: statusText(for: supply)
-                            )
+                    List {
+                        ForEach(supplies) { supply in
+                            NavigationLink {
+                                SupplyDetailView(supply: supply)
+                            } label: {
+                                SupplyRowView(
+                                    name: supply.name,
+                                    categoryName: supply.category.name,
+                                    statusText: statusText(for: supply)
+                                )
+                            }
                         }
+                        .onDelete(perform: deleteSupplies)
                     }
                 }
             }
@@ -105,6 +109,12 @@ struct SupplyListView: View {
 
     private func relativeDateText(for date: Date) -> String {
         date.formatted(.relative(presentation: .named, unitsStyle: .wide))
+    }
+
+    private func deleteSupplies(at offsets: IndexSet) {
+        for offset in offsets {
+            modelContext.delete(supplies[offset])
+        }
     }
 }
 
