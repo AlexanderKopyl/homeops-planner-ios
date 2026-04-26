@@ -10,6 +10,7 @@ import SwiftUI
 
 struct MaintenanceDetailView: View {
     let task: MaintenanceTask
+    @State private var isShowingEditForm = false
 
     var body: some View {
         Form {
@@ -51,6 +52,16 @@ struct MaintenanceDetailView: View {
         }
         .navigationTitle(task.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Edit") {
+                    isShowingEditForm = true
+                }
+            }
+        }
+        .sheet(isPresented: $isShowingEditForm) {
+            MaintenanceFormView(task: task)
+        }
     }
 
     private var statusText: String {

@@ -12,11 +12,22 @@ struct MaintenanceFormView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
+    private let task: MaintenanceTask?
+
     @State private var title = ""
     @State private var nextDueDate = Date()
     @State private var frequencyNote = ""
     @State private var providerName = ""
     @State private var notes = ""
+
+    init(task: MaintenanceTask? = nil) {
+        self.task = task
+        _title = State(initialValue: task?.title ?? "")
+        _nextDueDate = State(initialValue: task?.nextDueDate ?? Date())
+        _frequencyNote = State(initialValue: task?.frequencyNote ?? "")
+        _providerName = State(initialValue: task?.providerName ?? "")
+        _notes = State(initialValue: task?.notes ?? "")
+    }
 
     var body: some View {
         NavigationStack {
@@ -41,7 +52,7 @@ struct MaintenanceFormView: View {
                         .lineLimit(3...6)
                 }
             }
-            .navigationTitle("New Maintenance")
+            .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -58,6 +69,10 @@ struct MaintenanceFormView: View {
                 }
             }
         }
+    }
+
+    private var navigationTitle: String {
+        task == nil ? "New Maintenance" : "Edit Maintenance"
     }
 
     private var canSave: Bool {
@@ -81,15 +96,24 @@ struct MaintenanceFormView: View {
     }
 
     private func saveTask() {
-        let task = MaintenanceTask(
-            title: trimmedTitle,
-            nextDueDate: nextDueDate,
-            frequencyNote: trimmedFrequencyNote,
-            providerName: trimmedProviderName,
-            notes: trimmedNotes
-        )
+        if let task {
+            task.title = trimmedTitle
+            task.nextDueDate = nextDueDate
+            task.frequencyNote = trimmedFrequencyNote
+            task.providerName = trimmedProviderName
+            task.notes = trimmedNotes
+        } else {
+            let task = MaintenanceTask(
+                title: trimmedTitle,
+                nextDueDate: nextDueDate,
+                frequencyNote: trimmedFrequencyNote,
+                providerName: trimmedProviderName,
+                notes: trimmedNotes
+            )
 
-        modelContext.insert(task)
+            modelContext.insert(task)
+        }
+
         dismiss()
     }
 
