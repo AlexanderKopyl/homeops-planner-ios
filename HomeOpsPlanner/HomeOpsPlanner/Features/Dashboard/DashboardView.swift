@@ -29,7 +29,7 @@ struct DashboardView: View {
                     if hasDashboardData {
                         DashboardSummaryView(
                             lowStockCount: runningLowSupplies.count,
-                            dueSoonCount: dueSoonSupplies.count,
+                            dueSoonCount: dueSoonSupplies.count + dueSoonMaintenanceTasks.count,
                             overdueCount: expiredSupplies.count + overdueMaintenanceTasks.count
                         )
 

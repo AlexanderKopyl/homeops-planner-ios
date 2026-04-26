@@ -15,7 +15,7 @@ struct DashboardEmptyStateView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("Add supplies or maintenance tasks to start tracking.")
+                Text("Add supplies or maintenance tasks to start tracking what runs low, expires, or needs attention.")
                     .font(.body)
                     .foregroundStyle(.secondary)
             }

@@ -11,16 +11,26 @@ final class MaintenanceTask {
     var notes: String?
 
     var isOverdue: Bool {
-        nextDueDate < Date()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let dueDay = calendar.startOfDay(for: nextDueDate)
+
+        return dueDay < today
     }
 
     var isDueSoon: Bool {
-        guard !isOverdue,
-              let dueSoonLimit = Calendar.current.date(byAdding: .day, value: 7, to: Date()) else {
+        guard !isOverdue else {
             return false
         }
 
-        return nextDueDate <= dueSoonLimit
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        guard let dueSoonLimit = calendar.date(byAdding: .day, value: 7, to: today) else {
+            return false
+        }
+
+        let dueDay = calendar.startOfDay(for: nextDueDate)
+        return dueDay <= dueSoonLimit
     }
 
     var needsAction: Bool {

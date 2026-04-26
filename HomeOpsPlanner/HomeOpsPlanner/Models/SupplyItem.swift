@@ -40,18 +40,28 @@ final class SupplyItem {
             return false
         }
 
-        return endDate < Date()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let endDay = calendar.startOfDay(for: endDate)
+
+        return endDay < today
     }
 
     var isDueSoon: Bool {
         guard trackingType == .time,
               let endDate,
-              !isExpired,
-              let dueSoonLimit = Calendar.current.date(byAdding: .day, value: 7, to: Date()) else {
+              !isExpired else {
             return false
         }
 
-        return endDate <= dueSoonLimit
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        guard let dueSoonLimit = calendar.date(byAdding: .day, value: 7, to: today) else {
+            return false
+        }
+
+        let endDay = calendar.startOfDay(for: endDate)
+        return endDay <= dueSoonLimit
     }
 
     var needsAction: Bool {
