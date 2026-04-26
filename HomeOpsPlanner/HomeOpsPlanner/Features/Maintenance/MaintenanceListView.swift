@@ -10,6 +10,7 @@ import SwiftUI
 
 struct MaintenanceListView: View {
     @Query(sort: \MaintenanceTask.nextDueDate) private var tasks: [MaintenanceTask]
+    @State private var isShowingMaintenanceForm = false
 
     var body: some View {
         NavigationStack {
@@ -35,12 +36,14 @@ struct MaintenanceListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        // TODO: Present the maintenance create form when that MVP slice exists.
+                        isShowingMaintenanceForm = true
                     } label: {
                         Image(systemName: "plus")
                     }
-                    .disabled(true)
                 }
+            }
+            .sheet(isPresented: $isShowingMaintenanceForm) {
+                MaintenanceFormView()
             }
         }
     }
