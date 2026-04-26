@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct DashboardEmptyStateView: View {
+    let onAddSupply: () -> Void
+    let onAddMaintenance: () -> Void
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
@@ -21,15 +24,11 @@ struct DashboardEmptyStateView: View {
             }
 
             VStack(spacing: 12) {
-                Button("Add Supply") {
-                    // Placeholder action for the initial dashboard shell.
-                }
+                Button("Add Supply", action: onAddSupply)
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)
 
-                Button("Add Maintenance") {
-                    // Placeholder action for the initial dashboard shell.
-                }
+                Button("Add Maintenance", action: onAddMaintenance)
                 .buttonStyle(.bordered)
                 .frame(maxWidth: .infinity)
             }
@@ -46,6 +45,9 @@ struct DashboardEmptyStateView: View {
 }
 
 #Preview {
-    DashboardEmptyStateView()
+    DashboardEmptyStateView(
+        onAddSupply: {},
+        onAddMaintenance: {}
+    )
         .padding()
 }

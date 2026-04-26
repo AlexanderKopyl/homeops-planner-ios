@@ -11,6 +11,8 @@ import SwiftData
 struct DashboardView: View {
     @Query(sort: \SupplyItem.name) private var supplies: [SupplyItem]
     @Query(sort: \MaintenanceTask.nextDueDate) private var maintenanceTasks: [MaintenanceTask]
+    @State private var isShowingSupplyForm = false
+    @State private var isShowingMaintenanceForm = false
 
     #if DEBUG
     @Environment(\.modelContext) private var modelContext
@@ -66,13 +68,26 @@ struct DashboardView: View {
                             }
                         }
                     } else {
-                        DashboardEmptyStateView()
+                        DashboardEmptyStateView(
+                            onAddSupply: {
+                                isShowingSupplyForm = true
+                            },
+                            onAddMaintenance: {
+                                isShowingMaintenanceForm = true
+                            }
+                        )
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
+            .sheet(isPresented: $isShowingSupplyForm) {
+                SupplyFormView()
+            }
+            .sheet(isPresented: $isShowingMaintenanceForm) {
+                MaintenanceFormView()
+            }
             #if DEBUG
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
