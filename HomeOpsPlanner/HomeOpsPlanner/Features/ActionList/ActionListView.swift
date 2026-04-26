@@ -45,6 +45,7 @@ struct ActionListView: View {
             .filter(\.isExpired)
             .map { supply in
                 DisplayAction(
+                    id: actionID(sourceType: "supply", sourceID: sourceID(for: supply), reason: "expired"),
                     title: supply.name,
                     reason: replacementText(for: supply),
                     sourceType: "Supply"
@@ -57,6 +58,7 @@ struct ActionListView: View {
             .filter(\.isOverdue)
             .map { task in
                 DisplayAction(
+                    id: actionID(sourceType: "maintenance", sourceID: sourceID(for: task), reason: "overdue"),
                     title: task.title,
                     reason: maintenanceText(for: task),
                     sourceType: "Maintenance"
@@ -69,6 +71,7 @@ struct ActionListView: View {
             .filter(\.isLowStock)
             .map { supply in
                 DisplayAction(
+                    id: actionID(sourceType: "supply", sourceID: sourceID(for: supply), reason: "low-stock"),
                     title: supply.name,
                     reason: quantityText(for: supply),
                     sourceType: "Supply"
@@ -81,6 +84,7 @@ struct ActionListView: View {
             .filter(\.isDueSoon)
             .map { supply in
                 DisplayAction(
+                    id: actionID(sourceType: "supply", sourceID: sourceID(for: supply), reason: "due-soon"),
                     title: supply.name,
                     reason: replacementText(for: supply),
                     sourceType: "Supply"
@@ -93,6 +97,7 @@ struct ActionListView: View {
             .filter(\.isDueSoon)
             .map { task in
                 DisplayAction(
+                    id: actionID(sourceType: "maintenance", sourceID: sourceID(for: task), reason: "due-soon"),
                     title: task.title,
                     reason: maintenanceText(for: task),
                     sourceType: "Maintenance"
@@ -143,10 +148,22 @@ struct ActionListView: View {
     private func relativeDateText(for date: Date) -> String {
         date.formatted(.relative(presentation: .numeric, unitsStyle: .wide))
     }
+
+    private func actionID(sourceType: String, sourceID: String, reason: String) -> String {
+        "\(sourceType):\(sourceID):\(reason)"
+    }
+
+    private func sourceID(for supply: SupplyItem) -> String {
+        String(describing: supply.persistentModelID)
+    }
+
+    private func sourceID(for task: MaintenanceTask) -> String {
+        String(describing: task.persistentModelID)
+    }
 }
 
 private struct DisplayAction: Identifiable {
-    let id = UUID()
+    let id: String
     let title: String
     let reason: String
     let sourceType: String
