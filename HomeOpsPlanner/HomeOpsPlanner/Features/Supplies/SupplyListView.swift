@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SupplyListView: View {
     @Query(sort: \SupplyItem.name) private var supplies: [SupplyItem]
+    @State private var isShowingSupplyForm = false
 
     var body: some View {
         NavigationStack {
@@ -34,12 +35,14 @@ struct SupplyListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        // TODO: Present the supply create form when that MVP slice exists.
+                        isShowingSupplyForm = true
                     } label: {
                         Image(systemName: "plus")
                     }
-                    .disabled(true)
                 }
+            }
+            .sheet(isPresented: $isShowingSupplyForm) {
+                SupplyFormView()
             }
         }
     }
